@@ -34,42 +34,56 @@ function tagstringlink(seq, link, tag)
 end 
 
 P:basic()
-P:lexicon("#unit", {"mètres", "centimètres", "kilomètres", "mètres carrés"})
-P:pattern([[ [#mesure #d #unit ] ]])
-P:pattern([[ [#monument  ( tour | pont ) #W] ]])
-P:pattern([[ [#hauteur #monument .{0,3} "hauteur" .{0,3} #mesure] ]])
+P:pattern([[ [#sport /^%u%u+$/ ] ]])
+P:pattern([[ [#objectif #W /%l/* ( permettent | vous permet ) /(%l)|(%p-[%.]/* /%./ ] ]])
+-- P:lexicon("#unit", {"mètres", "centimètres", "kilomètres", "mètres carrés"})
+-- P:pattern([[ [#mesure #d #unit ] ]])
+-- P:pattern([[ [#monument  ( tour | pont ) #W] ]])
+-- P:pattern([[ [#hauteur #monument .{0,3} "hauteur" .{0,3} #mesure] ]])
 
-local line = "La tour Eiffel a pour hauteur 324 mètres ."
-local seq = dark.sequence(line)
-
-P(seq)
-
-local tags= {
-	["#mesure"] = "yellow",
-	["#monument"] = "blue",
-	["#hauteur"] = "red",
+--local line = "La tour Eiffel a pour hauteur 324 mètres ."
+--local seq = dark.sequence(line)
+local tags = {
+	["#sport"] = "yellow",
+	["#objectif"] = "red",
 }
 
-print(seq:tostring(tags))
-
-print(tagstring(seq, "#monument"))
-print(tagstring(seq, "#toto"))
-
-local db = {
-
-	["tour Eiffel"] = {
-		position = "Paris",
-	}
-	["Notre Dame de Paris"] = {
-		hauteur = "57m"
-	}
-}
-
-if havetag(seq, "#hauteur") then
-	local monument = tagstringlink(seq,"#hauteur", "#monument")
-	local mesure = tagstringlink(seq, "#hauteur", "#mesure")
-	db[monument] = db[monument] or {}
-	db[monument].hauteur = mesure
+for line in io.lines("natation.txt") do
+	line = line:gsub("%p", " %0 ")
+	local seq = dark.sequence(line)
+	P(seq)
+	print(seq:tostring(tags))
 end
 
-print(serialize(db))
+
+
+-- local tags= {
+-- 	["#mesure"] = "yellow",
+-- 	["#monument"] = "blue",
+-- 	["#hauteur"] = "red",
+-- }
+
+
+--print(tagstring(seq, "#monument"))
+--print(tagstring(seq, "#toto"))
+
+-- local db = {
+
+-- 	["tour Eiffel"] = {
+-- 		position = "Paris"
+-- 	},
+-- 	["Notre Dame de Paris"] = {
+-- 		hauteur = "57m"
+-- 	}
+-- }
+
+-- if havetag(seq, "#hauteur") then
+-- 	local monument = tagstringlink(seq,"#hauteur", "#monument")
+-- 	local mesure = tagstringlink(seq, "#hauteur", "#mesure")
+-- 	db[monument] = db[monument] or {}
+-- 	db[monument].hauteur = mesure
+-- end
+
+--print(serialize(db))
+
+-- line = line:gsub("%p", "%0 ")

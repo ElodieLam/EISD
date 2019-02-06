@@ -35,7 +35,7 @@ end
 
 P:basic()
 P:lexicon("#bien", {"améliorer", "améliore", "santé", "développez", "travailler", "musclez"})
-P:pattern([[ [#sport /^%u%u+$/ ] ]])
+P:pattern([[ [#sport /^%u/[%u-]+$/ ] ]])
 P:pattern([[ [#objectif #W .* ( vous permettent | vous permet ) .*? "." ] ]])
 P:pattern([[ [#bienfaits #W .* #bien .* "." ] ]])
 P:pattern([[ [#contres #W .* ( "contre" "-" "indications" | "risques") .*? "." ] ]])

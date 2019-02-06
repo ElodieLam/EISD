@@ -2,6 +2,24 @@ dark = require("dark")
 
 local P = dark.pipeline()
 
+-- see if the file exists
+function file_exists(file)
+  local f = io.open(file, "rb")
+  if f then f:close() end
+  return f ~= nil
+end
+
+-- get all lines from a file, returns an empty 
+-- list/table if the file does not exist
+function lines_from(file)
+  if not file_exists(file) then return {} end
+  lines = {}
+  for line in io.lines(file) do 
+    lines[#lines + 1] = line
+  end
+  return lines
+end
+
 function havetag(seq, tag)
 	return #seq[tag] ~= 0
 end
@@ -33,40 +51,60 @@ function tagstringlink(seq, link, tag)
 	return tagstring(seq, tag, deb, fin)
 end 
 
+---------------- CREATION PATTERNS
 P:basic()
-P:lexicon("#bien", {"améliorer", "améliore", "santé", "développez", "travailler", "musclez"})
-P:pattern([[ [#sport /^%u/[%u-]+$/ ] ]])
-P:pattern([[ [#objectif #W .* ( vous permettent | vous permet ) .*? "." ] ]])
-P:pattern([[ [#bienfaits #W .* #bien .* "." ] ]])
-P:pattern([[ [#contres #W .* ( "contre" "-" "indications" | "risques") .*? "." ] ]])
-P:pattern([[ [#installations #W .*  ("équipements" | "équipement")  .*? "." ] ]])
-P:pattern([[ [#equipement #W .*  ("vous" "faut" )  .*? "." ] ]])
-P:pattern([[ [#age ^#W .*  (#d "ans" | "débutants" | "pour" "adultes" )  .*? "." ] ]])
+--P:pattern([[ [#sport /^%u%u+$/ ] ]]) -- Mot tout en majuscule
+--P:pattern([[ [#objectif #W /%l/* ( permettent | vous permet ) /(%l)|(%p-[%.]/* /%./ ] ]])
+
+P:pattern([[
+	[#permet
+		(permet|permettent) de 
+	]
+]])
+
+P:pattern([[
+	[#action
+		(developper | travailler | pratiquer | progresser | lutter)
+	]
+]])
+
+P:pattern([[ [#objectif #permet #action ] ]])
+
+--?(developper | travailler | pratiquer | progresser | lutter)
+
+-- P:lexicon("#unit", {"mètres", "centimètres", "kilomètres", "mètres carrés"})
 -- P:pattern([[ [#mesure #d #unit ] ]])
 -- P:pattern([[ [#monument  ( tour | pont ) #W] ]])
 -- P:pattern([[ [#hauteur #monument .{0,3} "hauteur" .{0,3} #mesure] ]])
 
 --local line = "La tour Eiffel a pour hauteur 324 mètres ."
 --local seq = dark.sequence(line)
+
+---------------- CREATION TAGS
 local tags = {
 	["#sport"] = "yellow",
 	["#objectif"] = "red",
-	["#bienfaits"] = "green",
-	["#contres"] = "blue",
-	["#installations"] = "white",
-	["#equipement"] = "cyan",
-	["#age"] = "magenta",
+	--["#permet"] = "blue",
 }
 
-for line in io.lines("natation.txt") do
-	line = line:gsub("’", "'")
-	line = line:gsub("%p", " %0 ")
-	local seq = dark.sequence(line)
+---------------- MAIN
+
+-- TODO retirer les accents dans le texte
+
+
+-- Open + Read file
+local file = 'natation.txt'
+--local file = 'volleyball.txt'
+local lines = lines_from(file)
+
+-- print all line numbers and their contents
+for k,v in pairs(lines) do
+	local seq = dark.sequence(v)
 	P(seq)
-	print(seq:tostring(tags))
+	print('line[' .. k .. ']', seq:tostring(tags))
 end
 
-
+---------------- BASE DE DONNEES
 
 -- local tags= {
 -- 	["#mesure"] = "yellow",

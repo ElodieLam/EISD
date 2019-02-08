@@ -4,10 +4,11 @@ local P = dark.pipeline()
 
 P:basic()
 P:lexicon("#bien", {"améliorer", "améliore", "santé", "développez", "travailler", "musclez", "développe", "gagnez"})
+P:lexicon("#maladies", {"Contre", "maladies", "contre", "indications", "malade", "douleur", "attention"})
 P:pattern([[ [#sport /^%u[%u-]+$/ ] ]])
-P:pattern([[ [#objectif ^#W .* ( vous permettent | vous permet ) .*? "." ] ]])
+P:pattern([[ [#objectif ^#W .* ( vous permettent | vous permet | permet) .*? "." ] ]])
 P:pattern([[ [#bienfaits ^#W .* #bien .*? ("." | "!") ] ]])
-P:pattern([[ [#contres ^#W .* ( "contre" "-" "indications" | "risques" | "fractures" | "problèmes") .*? "." ] ]])
+P:pattern([[ [#contres .* #maladies .*? "." ] ]])
 P:pattern([[ [#installations ^#W .*  ("équipements" | "équipement")  .*? "." ] ]])
 P:pattern([[ [#equipement ^#W .*  ("vous" "faut" )  .*? "." ] ]])
 P:pattern([[ [#age ^#W .*  (#d "ans" | "débutants" | "pour" "adultes" | "âge" | "enfants")  .*? "." ] ]])
@@ -22,7 +23,7 @@ local tags = {
 	["#age"] = "magenta",
 }
 
-for line in io.lines("natation.txt") do
+for line in io.lines("yoga.txt") do
 	line = line:gsub("’", "'")
 	line = line:gsub("%p", " %0 ")
 	local seq = dark.sequence(line)
@@ -68,6 +69,10 @@ local db = {
 			"Et si vous ne savez pas nager , sachez qu ' il existe des cours pour adultes . Après tout , on ne sait pas non plus skier ou pédaler avant d ' apprendre . Et comme pour monter à vélo , il n ' y a pas d ' âge pour se mettre à l ' eau . Il est même plus facile de mémoriser et synchroniser les gestes de la natation à l ' âge adulte .",
 			},
 	},
+
+
+
+
 	["volleyball"] = {
 		objectif = {"Ses principes de jeu et ses lieux de pratique , notamment sur le sable , vous permettent de vous amuser dès vos débuts .", 
 			"Le volley vous permet de progresser de façon globale sur votre équilibre et votre coordination ",
@@ -92,7 +97,23 @@ local db = {
 			"Ce sport est parfois conseillé aux enfants présentant des signes de scoliose . Chez ces enfants , une surveillance médicale régulière est indispensable .",
 			"Les dimensions du terrain et de la balle ainsi que la hauteur du filet ont été adaptées à la pratique de ce sport par les enfants . Le volley s ' avère une bonne indication pour les enfants souffrant d ' une scoliose légère .",
 			},
-	}
+	},
+
+
+
+["yoga"] = {
+	objectif = {"L ' objectif d'une classe de yoga est de se détendre. Apprendre à se relier à son souffle et de ne faire qu ’ un avec lui, de connaître et accepter ses limites mentales et corporelles. Avoir une meilleure conscience de son corps, c est commencer à comprendre ses émotions et mieux les canaliser. Ainsi, se mettre au yoga, c'est prendre du temps pour soi."
+	},
+	bienfaits = {"on améliore sa sensibilité proprioceptive (qui permet au cerveau d'ajuster naturellement la position et les mouvements du corps dans l'espace) et on effectue des mouvements plus précis tout en minimisant les risques de chutes et de blessures. L ' alignement du corps, la respiration synchronisée avec les mouvements, les temps de repos entre chaque posture ou à la fin des enchaînements, les contractions de certaines parties du corps pendant les postures... sont autant d'éléments qui permettent d'améliorer la capacité à se concentrer." 
+	},
+
+	contres = { "Contre-indications concernant les maladies suivantes :  une sclérose en plaques, de l'épilepsie, si vous avez subi une opération chirurgicale : dans ce cas, mieux vaut attendre 7 mois à 1 an avant de commencer le yoga, et toujours après contrôle médical."
+	}, 
+	installation = "",
+	equipement = {" La pratique du yoga ne demande pas beaucoup de matériel juste un tapis pour plus de confort, dans certains styles de yoga notamment l'Iyengar on peut se servir de bolster qui sont de gros cousins sur lesquels on peut reposer une partie du corps."  },
+	age = {""}
+
+}
 }
 
 print(serialize(db))

@@ -32,10 +32,79 @@ local tags = {
 	["#age"] = "magenta",
 }
 
-for line in io.lines("questions.txt") do
-	line = line:gsub("’", "'")
-	line = line:gsub("%p", " %0 ")
-	local seq = dark.sequence(line)
+
+function havetag(seq, tag)
+	return #seq[tag] ~= 0
+end
+
+
+function tagstring(seq, tag, deb, fin)
+	deb, fin = deb or 1, fin or #seq
+	if not havetag(seq, tag) then
+		return
+	end
+
+	for idx, pos in ipairs(seq[tag]) do
+		local d, f = pos[1], pos[2]
+		if d >= deb and f <= fin then
+			local res = {}
+			for i = deb, fin do
+				res[#res + 1] = seq[i].token
+			end
+			return table.concat(res, " ")
+		end
+	end
+end
+
+
+
+function tagstringlink(seq, link, tag)
+	if not havetag(seq, link) then
+		return
+	end
+	local pos = seq[link][1]
+	local deb, fin = pos[1], pos[2]
+	return tagstring(seq, tag, deb, fin)
+end  	
+
+local db = {
+
+	["sports"] = { 
+	}
+}
+
+---------------------Dialogue
+io.write('S: Bonjour, avez-vous des questions concernant un sport? Je peux aussi vous aider à trouver le sport qui vous correspond le mieux.\n')
+
+while true do
+  io.write('U: ')
+	--print(type(io.lines('natation.txt')))
+  local word = io.read()
+  word = word:gsub("’", "'")
+	word = word:gsub("%p", " %0 ")
+	local seq = dark.sequence(word)
 	P(seq)
 	print(seq:tostring(tags))
-end
+
+
+  if havetag(seq, "#sports") then
+    print("oui sports")
+ 	  --local monument = tagstringlink(seq,"#hauteur", "#monument")
+	  --local mesure = tagstringlink(seq, "#hauteur", "#mesure")
+	  db[sports] = db[sports] or {}
+	  print(serialize(db))
+ 	  --db[monument].hauteur = mesure
+  end
+
+  if line == nil then break end
+  if line == "bye" then break end
+
+  --TODO analyse de la question
+  
+  --TODO recherche de la réponse
+  local reponse = "..."
+
+  --print réponse
+  io.write('S: ', reponse, '!\n')
+  io.write("S: Avez-vous une autre question? \n")
+end 

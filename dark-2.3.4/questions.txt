@@ -1,11 +1,29 @@
-Avez-vous des sports collectifs en extérieur à me conseiller ?
-
-Quels sont les avantages à pratiquer la natation ?
-
-Quel est le but du basket-ball ?
-
+Générale:
 J'ai 10 ans, quel sport me conseilles-tu ?
+Quel est le but de la natation ?
+Quels sont les avantages à pratiquer la natation ?
+Quels sont les bienfaits de la natation ?
+Quels sont les contres-indications de la natation ?
+De quoi ai-je besoin pour pratiquer la natation ?
+Quelles sont les équipements nécessaires pour faire de la natation ?
+Il y a t - il besoin d ' équipement à la natation ?
 
-Je suis asthmatique, quel sport peut me convenir ?
+Natation:
+Je suis asthmatique / enceinte, quel sport peut me convenir ?
 
-Il y a t-il besoin d'équipement au basket-ball ?
+Volley:
+Avez-vous des sports collectifs en extérieur à me conseiller ?
+J'aimerai pratiquer un sport collectif sans contact avec l'adversaire
+
+Comment faire pour 
+    gagner en / augmenter mon / améliorer
+        équilibre / coordination / endurance / tonicité / détente / vélocité / réflexes ?
+Le volley - ball est - il un sport dangereux / à risques ?
+J'ai les os fragiles , quels sports ne sont pas fait pour moi ?
+
+Yoga:
+J'aimerai me détendre , quel sport me conseilles-tu ?
+
+Comment faire pour 
+    gagner en / augmenter mon / améliorer
+        ma concentration ?

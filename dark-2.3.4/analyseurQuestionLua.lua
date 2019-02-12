@@ -4,11 +4,13 @@ local P = dark.pipeline()
 
 P:basic()
 P:lexicon("#sport", {"natation", "basket - ball", "yoga", "sport", "sports"})
-P:lexicon("#bien", {"avantages"})
-P:lexicon("#maladie", {"asthme", "asthmatique", "sclérose en plaque"})
+P:lexicon("#bien", {"avantages", " bienfaits", "" })
+P:lexicon("#maladie", {"asthme", "asthmatique", "enceinte", "os fragiles", "sclerose en plaques"})
 P:lexicon("#but", {"but", "objectif"})
-P:lexicon("#question", {"convenir", "pratiquer", "conseilles", "conseiller"})
-P:lexicon("#precision", {"collectif", "extérieur", "collectifs"})
+P:lexicon("#question", {"convenir", "pratiquer", "conseilles", "conseiller", "comment", "faire pour", "quels sont", "quels", "Y a t-il"})
+P:lexicon("#precision", {"collectif", "extérieur", "collectifs", "sans contact", "individuel"})
+P:lexicon("#resutatSport", {"equilibre", "coordination", "endurance", "tonicité", "détente", "vélocité", "réflexes", "concentration"})
+P:lexicon("#risques", {"danger", "dangereux", "à risques"})
 
 P:pattern([[ [#sports #sport] ]])
 P:pattern([[ [#objectif #but] ]])
@@ -71,44 +73,38 @@ local db = {
 	}
 }
 
-
+---------------------Dialogue
 io.write('S: Bonjour, avez-vous des questions concernant un sport? Je peux aussi vous aider à trouver le sport qui vous correspond le mieux.\n')
 
 while true do
-    io.write('U: ')
+  io.write('U: ')
 	--print(type(io.lines('natation.txt')))
-    local word = io.read()
-
-	word = word:gsub("’", "'")
+  local word = io.read()
+  word = word:gsub("’", "'")
 	word = word:gsub("%p", " %0 ")
 	local seq = dark.sequence(word)
 	P(seq)
 	print(seq:tostring(tags))
-	if havetag(seq, "#sports") then
-		print("oui sports")
- 	--local monument = tagstringlink(seq,"#hauteur", "#monument")
-	--local mesure = tagstringlink(seq, "#hauteur", "#mesure")
-		db[sports] = db[sports] or {}
-		print(serialize(db))
- 	--db[monument].hauteur = mesure
- end
 
 
+  if havetag(seq, "#sports") then
+    print("oui sports")
+ 	  --local monument = tagstringlink(seq,"#hauteur", "#monument")
+	  --local mesure = tagstringlink(seq, "#hauteur", "#mesure")
+	  db[sports] = db[sports] or {}
+	  print(serialize(db))
+ 	  --db[monument].hauteur = mesure
+  end
 
+  if line == nil then break end
+  if line == "bye" then break end
 
-    if line == nil then break end
-    if line == "bye" then break end
-	
+  --TODO analyse de la question
+  
+  --TODO recherche de la réponse
+  local reponse = "..."
 
-    --analyse de la question
-
-
-    --recherche de la réponse
-    local reponse = "..."
-
-    --print réponse
-    io.write('S: ', reponse, '!\n')
-
-    io.write("S: Avez-vous une autre question? \n")
+  --print réponse
+  io.write('S: ', reponse, '!\n')
+  io.write("S: Avez-vous une autre question? \n")
 end 
-

@@ -26,7 +26,7 @@ local tags = {
 	["#objectif"] = "red",
 	["#bienfaits"] = "green",
 	["#contres"] = "blue",
-    ["#butQ"] = "white",
+    ["#butQ"] = "yellow",
     ["#precisionQ"] = "black",
 	["#equipement"] = "cyan",
 	["#age"] = "magenta",
@@ -44,16 +44,18 @@ function tagstring(seq, tag, deb, fin)
 		return
 	end
 
+	local res = {}
 	for idx, pos in ipairs(seq[tag]) do
 		local d, f = pos[1], pos[2]
 		if d >= deb and f <= fin then
-			local res = {}
+			local tmp = {}
 			for i = deb, fin do
-				res[#res + 1] = seq[i].token
+				tmp[#tmp + 1] = seq[i].token
 			end
-			return table.concat(res, " ")
+			res[#res + 1] = table.concat(tmp, " ")
 		end
 	end
+	return res
 end
 
 
@@ -62,49 +64,123 @@ function tagstringlink(seq, link, tag)
 	if not havetag(seq, link) then
 		return
 	end
-	local pos = seq[link][1]
-	local deb, fin = pos[1], pos[2]
-	return tagstring(seq, tag, deb, fin)
+
+	local t = {}
+	local seqs = seq[link]
+	for i=1, #seqs do
+		local pos = seqs[i]
+		local deb, fin = pos[1], pos[2]
+		t[#t + 1] = tagstring(seq, tag, deb, fin)
+	end
+	return t
 end  	
 
-local db = {
+function tagsToDb(seq, db)
+	if havetag(seq, "#sports") then
+		sport = tagstringlink(seq,"#sports", "#sports")
+		for i=1, #sport do
+			if sport[i][1] ~= nil then
+				table.insert(db["sport"], sport[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#objectif") then
+		objectif = tagstringlink(seq,"#objectif", "#objectif")
+		for i=1, #objectif do
+			if objectif[i][1] ~= nil then
+				table.insert(db["objectif"], objectif[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#bienfaits") then
+		bienfaits = tagstringlink(seq,"#bienfaits", "#bienfaits")
+		for i=1, #bienfaits do
+			if bienfaits[i][1] ~= nil then
+				table.insert(db["bienfaits"], bienfaits[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#contres") then
+		contres = tagstringlink(seq,"#contres", "#contres")
+		for i=1, #contres do
+			if objectif[i][1] ~= nil then
+				table.insert(db["contres"], contres[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#butQ") then
+		butQ = tagstringlink(seq,"#butQ", "#butQ")
+		for i=1, #butQ do
+			if butQ[i][1] ~= nil then
+				table.insert(db["butQ"], butQ[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#precisionQ") then
+		precisionQ = tagstringlink(seq,"#precisionQ", "#precisionQ")
+		for i=1, #precisionQ do
+			if precisionQ[i][1] ~= nil then
+				table.insert(db["precisionQ"], precisionQ[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#equipement") then
+		equipement = tagstringlink(seq,"#equipement", "#equipement")
+		for i=1, #equipement do
+			if equipement[i][1] ~= nil then
+				table.insert(db["equipement"], equipement[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#age") then
+		age = tagstringlink(seq,"#age", "#age")
+		for i=1, #age do
+			if age[i][1] ~= nil then
+				table.insert(db["age"], age[i][1])
+			end
+		end
+	end
+end
 
-	["sports"] = { 
-	}
+local db = {
+	sport = {},
+	objectif = {},
+	bienfaits = {},
+	contres = {},
+	butQ = {},
+	precisionQ = {},
+	equipement = {},
+	age = {}
 }
 
 ---------------------Dialogue
 io.write('S: Bonjour, avez-vous des questions concernant un sport? Je peux aussi vous aider à trouver le sport qui vous correspond le mieux.\n')
 
 while true do
-  io.write('U: ')
-	--print(type(io.lines('natation.txt')))
-  local word = io.read()
-  word = word:gsub("’", "'")
+	io.write('U: ')
+	local word = io.read()
+
+	if word == nil then break end
+	if word == "bye" then break end
+
+	word = word:gsub("’", "'")
 	word = word:gsub("%p", " %0 ")
 	local seq = dark.sequence(word)
 	P(seq)
 	print(seq:tostring(tags))
 
-
-  if havetag(seq, "#sports") then
-    print("oui sports")
- 	  --local monument = tagstringlink(seq,"#hauteur", "#monument")
-	  --local mesure = tagstringlink(seq, "#hauteur", "#mesure")
-	  db[sports] = db[sports] or {}
-	  print(serialize(db))
- 	  --db[monument].hauteur = mesure
-  end
-
-  if line == nil then break end
-  if line == "bye" then break end
-
-  --TODO analyse de la question
+	-------Récupération du contenu des tags de la question
+	tagsToDb(seq, db)
+	
+  	--TODO analyse de la question
   
-  --TODO recherche de la réponse
-  local reponse = "..."
+  	--TODO recherche de la réponse
+	local reponse = "..."
 
-  --print réponse
-  io.write('S: ', reponse, '!\n')
-  io.write("S: Avez-vous une autre question? \n")
+  	--print réponse
+  	io.write('S: ', reponse, '!\n')
+  	io.write("S: Avez-vous une autre question? \n")
+
 end 
+
+print(serialize(db))

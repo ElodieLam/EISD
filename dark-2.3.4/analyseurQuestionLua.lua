@@ -6,7 +6,7 @@ P:basic()
 P:lexicon("#sport", {"natation", "basket - ball", "yoga", "sport", "sports"})
 P:lexicon("#bien", {"avantages", " bienfaits", "" })
 P:lexicon("#maladie", {"asthme", "asthmatique", "enceinte", "os fragiles", "sclerose en plaques"})
-P:lexicon("#but", {"but", "objectif"})
+P:lexicon("#but", {"but", "objectif", "détendre", })
 P:lexicon("#question", {"convenir", "pratiquer", "conseilles", "conseiller", "comment", "faire pour", "quels sont", "quels", "Y a t-il"})
 P:lexicon("#precision", {"collectif", "extérieur", "collectifs", "sans contact", "individuel"})
 P:lexicon("#resutatSport", {"equilibre", "coordination", "endurance", "tonicité", "détente", "vélocité", "réflexes", "concentration"})
@@ -37,7 +37,6 @@ function havetag(seq, tag)
 	return #seq[tag] ~= 0
 end
 
-
 function tagstring(seq, tag, deb, fin)
 	deb, fin = deb or 1, fin or #seq
 	if not havetag(seq, tag) then
@@ -58,8 +57,6 @@ function tagstring(seq, tag, deb, fin)
 	return res
 end
 
-
-
 function tagstringlink(seq, link, tag)
 	if not havetag(seq, link) then
 		return
@@ -75,6 +72,7 @@ function tagstringlink(seq, link, tag)
 	return t
 end  	
 
+--Remplis la db avec les éléments des tags dans la question
 function tagsToDb(seq, db)
 	if havetag(seq, "#sports") then
 		sport = tagstringlink(seq,"#sports", "#sports")
@@ -142,6 +140,15 @@ function tagsToDb(seq, db)
 	end
 end
 
+--Récupère la liste des éléments sous le tag dans la db
+function getListElementOfTagInDb(tag, db)
+	local result = {}	
+	for i=1, #db[tag] do
+		table.insert(result, db[tag][i])
+	end
+	return result
+end
+
 local db = {
 	sport = {},
 	objectif = {},
@@ -165,6 +172,7 @@ while true do
 
 	word = word:gsub("’", "'")
 	word = word:gsub("%p", " %0 ")
+
 	local seq = dark.sequence(word)
 	P(seq)
 	print(seq:tostring(tags))
@@ -172,7 +180,8 @@ while true do
 	-------Récupération du contenu des tags de la question
 	tagsToDb(seq, db)
 	
-  	--TODO analyse de la question
+	--TODO analyse de la question
+	print(serialize(getListElementOfTagInDb("objectif", db)))
   
   	--TODO recherche de la réponse
 	local reponse = "..."

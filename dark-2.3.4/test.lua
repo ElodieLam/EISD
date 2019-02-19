@@ -70,8 +70,6 @@ P:pattern([[
 
 P:pattern([[ [#objectif #permet #action ] ]])
 
---?(developper | travailler | pratiquer | progresser | lutter)
-
 -- P:lexicon("#unit", {"mètres", "centimètres", "kilomètres", "mètres carrés"})
 -- P:pattern([[ [#mesure #d #unit ] ]])
 -- P:pattern([[ [#monument  ( tour | pont ) #W] ]])
@@ -116,7 +114,7 @@ end
 --print(tagstring(seq, "#monument"))
 --print(tagstring(seq, "#toto"))
 
--- local db = {
+--- local db = {
 
 -- 	["tour Eiffel"] = {
 -- 		position = "Paris"
@@ -126,6 +124,15 @@ end
 -- 	}
 -- }
 
+local db = {
+	["natation"] = {
+		objectif = "nul"
+	},
+	["volleyball"] = {
+		objectif = "nul"
+	}
+}
+
 -- if havetag(seq, "#hauteur") then
 -- 	local monument = tagstringlink(seq,"#hauteur", "#monument")
 -- 	local mesure = tagstringlink(seq, "#hauteur", "#mesure")
@@ -133,6 +140,6 @@ end
 -- 	db[monument].hauteur = mesure
 -- end
 
---print(serialize(db))
+print(serialize(db))
 
 -- line = line:gsub("%p", "%0 ")

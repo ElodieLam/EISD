@@ -1,4 +1,4 @@
-LUADIR=/Users/bureaujudo/Documents/EISD/lua-5.3.5
+LUADIR=/Users/Elodie/Documents/_EISD/EISD/lua-5.3.5
 
 LUABIN=${LUADIR}/bin
 LUAINC=${LUADIR}/include

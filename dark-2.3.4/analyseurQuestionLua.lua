@@ -13,7 +13,7 @@ P:lexicon("#infoSport", {"j'aimerai pratiquer", "j'aimerai faire", "je voudrais 
 P:lexicon("#bien", {"avantages", " bienfaits", "" })
 P:lexicon("#maladie", {"asthme", "asthmatique", "enceinte", "os fragiles", "sclerose en plaques"})
 P:lexicon("#but", {"but", "objectif"})
---ajout 15/02
+
 P:lexicon("#listeObjectifs", listObjectifs)
 
 P:lexicon("#listeGenerations", listGenerations)
@@ -222,10 +222,6 @@ local db = {
 
 
 ---------------------Dialogue
---io.write(string.levenshtein("bonjour", "bonj"))
-
-io.write('U: ')
-	--print(type(io.lines('natation.txt')))
  
 io.write('\nS: Bonjour, je peux aussi vous aider à trouver le sport qui vous correspond le mieux. Quel est votre objectif? \n \n')
 local motProcheObjectif=false
@@ -237,30 +233,30 @@ while true do
   io.write('U: ')
   local word = io.read() 
   
-  if line == nil then break end
-  if line == "bye" then break end
+  --if line == nil then break end
+  --if line == "bye" then break end
 
 -- Distance de Levenshtein avec les objectifs 
- for j=1, #listObjectifs do
+for j=1, #listObjectifs do
  	for mot in word:gmatch("%w+") do
-  				if (string.levenshtein(mot, listObjectifs[j])==1) then
-  -- 			-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
-  -- 	 		table.insert(t, listObjectifs[j]) 
-  	 				motProcheObjectif = true
+  		if (string.levenshtein(mot, listObjectifs[j])==1) then
+  -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
+  -- 	 table.insert(t, listObjectifs[j]) 
+  	 		motProcheObjectif = true
   		end
-  end
+  	end
 end
 
 -- Distance de Levenshtein avec l'age 
 
  for j=1, #listGenerations do
  	for mot in word:gmatch("%w+") do
-  				if (string.levenshtein(mot, listGenerations[j])==1) then
-  -- 			-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
-  -- 	 		table.insert(t, listObjectifs[j]) 
-  	 				motProcheGeneration = true
+  		if (string.levenshtein(mot, listGenerations[j])==1) then
+  -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
+  -- 	 table.insert(t, listObjectifs[j]) 
+  	 		motProcheGeneration = true
   		
-          end
+        end
     end
 end
 
@@ -268,13 +264,14 @@ end
 
  for j=1, #listMaladies do
  	for mot in word:gmatch("%w+") do
-  				if (string.levenshtein(mot, listMaladies[j])==1) then
-  -- 			-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
-  -- 	 		table.insert(t, listObjectifs[j]) 
-  	 				motProcheMaladie = true
-  		end
+  		if (string.levenshtein(mot, listMaladies[j])==1) then
+  -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
+  -- 	 table.insert(t, listObjectifs[j]) 
+  	 		motProcheMaladie = true
+		  end
+		end
   end
-end
+
 
 
   word = word:gsub("’", "'")
@@ -296,28 +293,15 @@ end
   
 	end
 
-
-
- 
-
-  --TODO analyse de la question
-  
-
-
-
 	-------Récupération du contenu des tags de la question
 	tagsToDb(seq, db)
 	
   --TODO recherche de la réponse
-  local reponse = "..."
+
 
   --print réponse
-  io.write('S: ', reponse, '!\n')
-  io.write("S: Avez-vous une autre question? \n")
 
 
-
-end
 end
 	
 

@@ -48,6 +48,7 @@ local tags = {
     ["#precisionQ"] = "black",
 	["#equipement"] = "cyan",
 	["#age"] = "magenta",
+	["#listeObjectifs"] = "red"
 }
 
 
@@ -205,6 +206,14 @@ function tagsToDb(seq, db)
 			end
 		end
 	end
+	if havetag(seq, "#listeObjectifs") then
+		listeObjectifs = tagstringlink(seq,"#listeObjectifs", "#listeObjectifs")
+		for i=1, #listeObjectifs do
+			if listeObjectifs[i][1] ~= nil then
+				table.insert(db["listeObjectifs"], listeObjectifs[i][1])
+			end
+		end
+	end
 end
 
 local db = {
@@ -215,7 +224,8 @@ local db = {
 	butQ = {},
 	precisionQ = {},
 	equipement = {},
-	age = {}
+	age = {},
+	listeObjectifs = {}
 }
 
 
@@ -232,7 +242,7 @@ local motProcheMaladie=false
 while true do
   io.write('U: ')
   local word = io.read() 
-  
+
   --if line == nil then break end
   --if line == "bye" then break end
 
@@ -294,14 +304,18 @@ end
 	end
 
 	-------Récupération du contenu des tags de la question
+	print(seq:tostring(tags))
 	tagsToDb(seq, db)
+
+	print( "elo" .. "die")
 	
   --TODO recherche de la réponse
 
 
   --print réponse
 
-
+  print(serialize(db))
+  
 end
 
 

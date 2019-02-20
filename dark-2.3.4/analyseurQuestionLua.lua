@@ -48,7 +48,9 @@ local tags = {
     ["#precisionQ"] = "black",
 	["#equipement"] = "cyan",
 	["#age"] = "magenta",
-	["#listeObjectifs"] = "red"
+	["#listeObjectifs"] = "red",
+	["#listeGenerations"] = "yellow",
+	["#listesMaladies"] = "green",
 }
 
 
@@ -169,7 +171,7 @@ function tagsToDb(seq, db)
 	if havetag(seq, "#contres") then
 		contres = tagstringlink(seq,"#contres", "#contres")
 		for i=1, #contres do
-			if objectif[i][1] ~= nil then
+			if contres[i][1] ~= nil then
 				table.insert(db["contres"], contres[i][1])
 			end
 		end
@@ -214,7 +216,79 @@ function tagsToDb(seq, db)
 			end
 		end
 	end
+	if havetag(seq, "#listeGenerations") then
+		listeGenerations = tagstringlink(seq,"#listeGenerations", "#listeGenerations")
+		for i=1, #listeGenerations do
+			if listeGenerations[i][1] ~= nil then
+				table.insert(db["listeGenerations"], listeGenerations[i][1])
+			end
+		end
+	end
+	if havetag(seq, "#listesMaladies") then
+		listesMaladies = tagstringlink(seq,"#listesMaladies", "#listesMaladies")
+		for i=1, #listesMaladies do
+			if listesMaladies[i][1] ~= nil then
+				table.insert(db["listesMaladies"], listesMaladies[i][1])
+			end
+		end
+	end
 end
+
+function isLenvenstein(list, word)
+	for j=1, list do
+		for mot in word:gmatch("%w+") do
+			 if (string.levenshtein(mot, list[j])==1) then
+	 -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
+	 -- 	 table.insert(t, list[j]) 
+				  motProcheObjectif = true
+			 end
+		 end
+   end
+end
+
+function stringToTable(inputstr, sep)
+	if sep == nil then
+			sep = "%s"
+	end
+	local t={}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+			table.insert(t, str)
+	end
+	return t
+end
+
+function tableToString(table)
+	local s = ""
+	for index,value in pairs(table) do
+		s = s .. ' ' .. table[index]
+	end
+	return s
+end
+
+
+function correctLine(list, line, lineInArray)
+
+	local word_corrige = ""
+	local line_corrige = ""
+	local array_corrige = lineInArray
+
+	print("line in correctLine: " , line)
+
+	for j=1, #list do
+		local index = 1
+		for mot in line:gmatch("%w+") do
+			 if (string.levenshtein(mot, list[j])==1) then
+				  motProcheObjectif = true
+				  word_corrige = word_corrige .. '' .. list[j]
+				  array_corrige[index] = word_corrige
+				  word_corrige = ""
+			 end
+			 index = index + 1
+		 end
+	end
+	return array_corrige
+end
+
 
 local db = {
 	sport = {},
@@ -225,7 +299,9 @@ local db = {
 	precisionQ = {},
 	equipement = {},
 	age = {},
-	listeObjectifs = {}
+	listeObjectifs = {},
+	listeGenerations = {},
+	listesMaladies = {}
 }
 
 
@@ -240,54 +316,32 @@ local motProcheMaladie=false
 
 
 while true do
-  io.write('U: ')
-  local word = io.read() 
+	io.write('U: ')
+	local line = io.read() 
 
-  --if line == nil then break end
-  --if line == "bye" then break end
+	local lineInArray = stringToTable(line)
+	local word_corrige = ""
+	local line_corrige = ""
 
--- Distance de Levenshtein avec les objectifs 
-for j=1, #listObjectifs do
- 	for mot in word:gmatch("%w+") do
-  		if (string.levenshtein(mot, listObjectifs[j])==1) then
-  -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
-  -- 	 table.insert(t, listObjectifs[j]) 
-  	 		motProcheObjectif = true
-  		end
-  	end
-end
+	if line == nil then break end
+	if line == "bye" then break end
 
--- Distance de Levenshtein avec l'age 
+	-- Distance de Levenshtein avec les objectifs 
+	lineInArray = correctLine(listObjectifs, line, lineInArray)
+	-- avec l'age 
+	lineInArray = correctLine(listGenerations, line, lineInArray)
+	-- avec les contre-indications 
+	lineInArray = correctLine(listMaladies, line, lineInArray)
+	print("array: ", serialize(lineInArray))
 
- for j=1, #listGenerations do
- 	for mot in word:gmatch("%w+") do
-  		if (string.levenshtein(mot, listGenerations[j])==1) then
-  -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
-  -- 	 table.insert(t, listObjectifs[j]) 
-  	 		motProcheGeneration = true
-  		
-        end
-    end
-end
-
--- Distance de Levenshtein avec les contre-indications 
-
- for j=1, #listMaladies do
- 	for mot in word:gmatch("%w+") do
-  		if (string.levenshtein(mot, listMaladies[j])==1) then
-  -- 	-- On conserve la valeur reelle du mot pour l'utiliser dans la base de donnees
-  -- 	 table.insert(t, listObjectifs[j]) 
-  	 		motProcheMaladie = true
-		  end
-		end
-  end
-
-
-
-  word = word:gsub("’", "'")
-	word = word:gsub("%p", " %0 ")
-	local seq = dark.sequence(word)
+	-- Pose des tags
+	line_corrige = tableToString(lineInArray)
+	line_corrige = line_corrige:gsub("’", "'")
+	line_corrige = line_corrige:gsub("%p", " %0 ")
+	local seq = dark.sequence(line_corrige)
 	P(seq)
+
+	-- Dialogue partie 1
 	tagLeven = tagstringlink(seq, "#listeObjectifs", "#listeObjectifs" )
   	if (havetag(seq, "#listeObjectifs") or (motProcheObjectif==true)) then
     	io.write("\nS: Très bien, je peux vous proposer plusieurs sports! Etes vous plutot jeune ou âgé ? \n \n")
@@ -297,25 +351,21 @@ end
      	motProcheGeneration=false
    	elseif havetag(seq, "#listesMaladies")  or (motProcheMaladie==true) then
      	io.write("\nS: J’ai trouvé quelques sports qui peuvent vous correspondre.\n Je vous propose la natation.\n Voulez vous plus d'informations sur ce sport ?  \n \n")
-	 	motProcheMaladie=false
-	  -- db[sports] = db[sports] or {}
-	  -- print(serialize(db))
-  
+	 	motProcheMaladie=false  
 	end
 
-	-------Récupération du contenu des tags de la question
+	-- Dialogue partie 2
+	-- Récupération du contenu des tags de la question
 	print(seq:tostring(tags))
 	tagsToDb(seq, db)
-
-	print( "elo" .. "die")
 	
-  --TODO recherche de la réponse
+	-- TODO recherche de la réponse
 
 
-  --print réponse
+	-- TODO print réponse
 
-  print(serialize(db))
-  
+	-- Print DB
+	print(serialize(db))
 end
 
 

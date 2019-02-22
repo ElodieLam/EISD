@@ -272,13 +272,13 @@ function correctLine(list, line, lineInArray)
 	local line_corrige = ""
 	local array_corrige = lineInArray
 
-	print("line in correctLine: " , line)
+	--print("line in correctLine: " , line)
 
 	for j=1, #list do
 		local index = 1
 		for mot in line:gmatch("%w+") do
 			 if (string.levenshtein(mot, list[j])==1) then
-				  motProcheObjectif = true
+				  --motProcheObjectif = true
 				  word_corrige = word_corrige .. '' .. list[j]
 				  array_corrige[index] = word_corrige
 				  word_corrige = ""
@@ -305,17 +305,128 @@ local db = {
 }
 
 
+function getElementInDb(tagName)
+	for k, v in pairs(db) do
+		if (k == tagName) then
+			return v
+		end
+	end
+end
 
+function getReponseUser()
 
----------------------Dialogue
+end
+
+------------------------------------------Dialogue
  
 io.write('\nS: Bonjour, je peux aussi vous aider à trouver le sport qui vous correspond le mieux. Quel est votre objectif? \n \n')
-local motProcheObjectif=false
-local motProcheGeneration=false
-local motProcheMaladie=false
+
+--------------------- Partie 1 (entonoir)
+
+--QUESTION 1 : Objectifs
+io.write('U: ')
+local line = io.read() 
+
+local lineInArray = stringToTable(line)
+local word_corrige = ""
+local line_corrige = ""
+
+-- Distance de Levenshtein avec les objectifs 
+lineInArray = correctLine(listObjectifs, line, lineInArray)
+
+-- Pose des tags
+line_corrige = tableToString(lineInArray)
+line_corrige = line_corrige:gsub("’", "'")
+line_corrige = line_corrige:gsub("%p", " %0 ")
+local seq = dark.sequence(line_corrige)
+P(seq)
+--print(seq:tostring(tags))
+
+-- Enregistre la réponse dans la db
+tagsToDb(seq, db)
+
+-- Réponse du système
+if (havetag(seq, "#listeObjectifs")) then 
+	local t = getElementInDb("listeObjectifs")
+	io.write("\nS: Très bien, vous voulez travailler votre ")
+	for i=1, #t do 
+		io.write(t[i])
+		if (t[i+1] ~= nil) then
+			io.write(" et ")
+		end
+	end
+	io.write(". Je peux vous proposer plusieurs sports! Etes vous plutot jeune ou âgé ? \n \n")
+end
+
+--QUESTION 2 : Age
+	io.write('U: ')
+	local line = io.read() 
+	
+	local lineInArray = stringToTable(line)
+	local word_corrige = ""
+	local line_corrige = ""
+	
+	-- Distance de Levenshtein avec l'age 
+	lineInArray = correctLine(listGenerations, line, lineInArray)
+	
+	-- Pose des tags
+	line_corrige = tableToString(lineInArray)
+	line_corrige = line_corrige:gsub("’", "'")
+	line_corrige = line_corrige:gsub("%p", " %0 ")
+	local seq = dark.sequence(line_corrige)
+	P(seq)
+	--print(seq:tostring(tags))
+	
+	-- Enregistre la réponse dans la db
+	tagsToDb(seq, db)
+
+	-- Réponse du système
+	if (havetag(seq, "#listeGenerations")) then 
+		local t = getElementInDb("listeGenerations")
+		io.write("\nS: OK! Super, vous etes ")
+		for i=1, #t do 
+			io.write(t[i])
+		end
+		io.write(". Avez-vous des problèmes de santé ou des contre-indications ? \n \n")
+	end
+
+--QUESTION 3 : Contre-indications
+
+io.write('U: ')
+local line = io.read() 
+
+local lineInArray = stringToTable(line)
+local word_corrige = ""
+local line_corrige = ""
+
+-- Distance de Levenshtein avec les contre-indications 
+lineInArray = correctLine(listMaladies, line, lineInArray)
+
+-- Pose des tags
+line_corrige = tableToString(lineInArray)
+line_corrige = line_corrige:gsub("’", "'")
+line_corrige = line_corrige:gsub("%p", " %0 ")
+local seq = dark.sequence(line_corrige)
+P(seq)
+--print(seq:tostring(tags))
+
+-- Enregistre la réponse dans la db
+tagsToDb(seq, db)
+
+-- Réponse du système
+if (havetag(seq, "#listesMaladies")) then 
+	local t = getElementInDb("listesMaladies")
+	io.write("\nS: D'accord. \n")
+	for i=1, #t do 
+		--io.write(t[i])
+	end
+	io.write("\nS: J’ai trouvé quelques sports qui peuvent vous correspondre.\n Je vous propose la natation.\n Voulez vous plus d'informations sur ce sport ?  \n \n")
+end
 
 
+--------------------- Partie 2 (libre)
 while true do
+
 	io.write('U: ')
 	local line = io.read() 
 
@@ -326,13 +437,8 @@ while true do
 	if line == nil then break end
 	if line == "bye" then break end
 
-	-- Distance de Levenshtein avec les objectifs 
+	-- Distance de Levenshtein 
 	lineInArray = correctLine(listObjectifs, line, lineInArray)
-	-- avec l'age 
-	lineInArray = correctLine(listGenerations, line, lineInArray)
-	-- avec les contre-indications 
-	lineInArray = correctLine(listMaladies, line, lineInArray)
-	print("array: ", serialize(lineInArray))
 
 	-- Pose des tags
 	line_corrige = tableToString(lineInArray)
@@ -340,27 +446,12 @@ while true do
 	line_corrige = line_corrige:gsub("%p", " %0 ")
 	local seq = dark.sequence(line_corrige)
 	P(seq)
+	--print(seq:tostring(tags))
 
-	-- Dialogue partie 1
-	tagLeven = tagstringlink(seq, "#listeObjectifs", "#listeObjectifs" )
-  	if (havetag(seq, "#listeObjectifs") or (motProcheObjectif==true)) then
-    	io.write("\nS: Très bien, je peux vous proposer plusieurs sports! Etes vous plutot jeune ou âgé ? \n \n")
-    	motProcheObjectif=false
-   	elseif havetag(seq, "#listeGenerations") or (motProcheGeneration==true) then
-     	io.write("\nS: OK! Super, Vous etes jeune donc! Avez-vous des problèmes de santé ou des contre-indications ? \n \n")
-     	motProcheGeneration=false
-   	elseif havetag(seq, "#listesMaladies")  or (motProcheMaladie==true) then
-     	io.write("\nS: J’ai trouvé quelques sports qui peuvent vous correspondre.\n Je vous propose la natation.\n Voulez vous plus d'informations sur ce sport ?  \n \n")
-	 	motProcheMaladie=false  
-	end
-
-	-- Dialogue partie 2
 	-- Récupération du contenu des tags de la question
-	print(seq:tostring(tags))
 	tagsToDb(seq, db)
 	
 	-- TODO recherche de la réponse
-
 
 	-- TODO print réponse
 

@@ -6,6 +6,8 @@ local t = {}
 listObjectifs = {"equilibre", "coordination", "endurance", "tonicité", "détente", "vélocité", "réflexes", "concentration", "perte de poids", "poids"}
 listGenerations = {"jeune", "18 ans", "personne agée", "agé", "jeune"}
 listMaladies = {"asthme", "asthmatique", "enceinte", "os fragiles", "sclerose en plaques"}
+listAffirmations = {"oui", "bien sur", "d'accord", "evidemment", "très bien", "c'est note"}
+listInfirmations = { "non", "ne", "pas", "jamais"}
 
 P:basic()
 P:lexicon("#sport", {"natation", "basket - ball", "yoga", "sport", "sports"})
@@ -20,7 +22,11 @@ P:lexicon("#listeGenerations", listGenerations)
 
 P:lexicon("#listesMaladies",listMaladies)
 
+P:lexicon("#listeObjectifs", listObjectifs)
 
+P:lexicon("#listeAffirmations", listAffirmations)
+
+P:lexicon("#listeInfirmations", listInfirmations)
 
 
 P:lexicon("#question", {"convenir", "pratiquer", "conseilles", "conseiller", "comment", "faire pour", "quels sont", "quels", "Y a t-il"})
@@ -135,13 +141,9 @@ function string.levenshtein(str1, str2)
 			matrix[i][j] = math.min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
 		end
 	end
-	
         -- return the last value - this is the Levenshtein distance
 	return matrix[len1][len2]
 end
-
-
-
 
 function tagsToDb(seq, db)
 	if havetag(seq, "#sports") then
@@ -272,13 +274,13 @@ function correctLine(list, line, lineInArray)
 	local line_corrige = ""
 	local array_corrige = lineInArray
 
-	--print("line in correctLine: " , line)
+	-- print("line in correctLine: " , line)
 
 	for j=1, #list do
 		local index = 1
 		for mot in line:gmatch("%w+") do
 			 if (string.levenshtein(mot, list[j])==1) then
-				  --motProcheObjectif = true
+			--	  motProcheObjectif = true
 				  word_corrige = word_corrige .. '' .. list[j]
 				  array_corrige[index] = word_corrige
 				  word_corrige = ""
@@ -304,7 +306,6 @@ local db = {
 	listesMaladies = {}
 }
 
-
 function getElementInDb(tagName)
 	for k, v in pairs(db) do
 		if (k == tagName) then
@@ -313,16 +314,22 @@ function getElementInDb(tagName)
 	end
 end
 
-function getReponseUser()
 
-end
-
-------------------------------------------Dialogue
+---------------------Dialogue
  
 io.write('\nS: Bonjour, je peux aussi vous aider à trouver le sport qui vous correspond le mieux. Quel est votre objectif? \n \n')
+local motProcheObjectif=false
+local motProcheGeneration=false
+local motProcheMaladie=false
 
 --------------------- Partie 1 (entonoir)
+-----On repete la meme question tant que l'utilisateur 
+local objCompris=false
+local ageCompris=false
+local contreIndCompris=false
+local questCompris=false
 
+while(objCompris==false) do
 --QUESTION 1 : Objectifs
 io.write('U: ')
 local line = io.read() 
@@ -347,6 +354,7 @@ tagsToDb(seq, db)
 
 -- Réponse du système
 if (havetag(seq, "#listeObjectifs")) then 
+	objCompris = true;
 	local t = getElementInDb("listeObjectifs")
 	io.write("\nS: Très bien, vous voulez travailler votre ")
 	for i=1, #t do 
@@ -356,9 +364,13 @@ if (havetag(seq, "#listeObjectifs")) then
 		end
 	end
 	io.write(". Je peux vous proposer plusieurs sports! Etes vous plutot jeune ou âgé ? \n \n")
-end
+ else
+	 io.write("\nS: Je n'ai pas bien compris votre réponse pouriez vous reformuler s'il vous plait? \n \n") 
 
+ end
+end
 --QUESTION 2 : Age
+while(ageCompris==false) do
 	io.write('U: ')
 	local line = io.read() 
 	
@@ -382,16 +394,21 @@ end
 
 	-- Réponse du système
 	if (havetag(seq, "#listeGenerations")) then 
+		ageCompris = true;
 		local t = getElementInDb("listeGenerations")
 		io.write("\nS: OK! Super, vous etes ")
 		for i=1, #t do 
 			io.write(t[i])
 		end
 		io.write(". Avez-vous des problèmes de santé ou des contre-indications ? \n \n")
+	
+	else
+		io.write("\nS: Je n'ai pas bien compris votre réponse pouriez vous reformuler s'il vous plait? \n \n")	 
 	end
+end
 
 --QUESTION 3 : Contre-indications
-
+while(contreIndCompris==false) do
 io.write('U: ')
 local line = io.read() 
 
@@ -415,12 +432,41 @@ tagsToDb(seq, db)
 
 -- Réponse du système
 if (havetag(seq, "#listesMaladies")) then 
+	contreIndCompris = true;
 	local t = getElementInDb("listesMaladies")
 	io.write("\nS: D'accord. \n")
 	for i=1, #t do 
 		--io.write(t[i])
 	end
 	io.write("\nS: J’ai trouvé quelques sports qui peuvent vous correspondre.\n Je vous propose la natation.\n Voulez vous plus d'informations sur ce sport ?  \n \n")
+
+else
+	io.write("\nS: Je n'ai pas bien compris votre réponse pouriez vous reformuler s'il vous plait? \n \n")
+end
+end
+-- Question 5 : Question Ouverte
+
+io.write('U: ')
+local line = io.read() 
+
+local lineInArray = stringToTable(line)
+local word_corrige = ""
+local line_corrige = ""
+
+-- Distance de Levenshtein avec les contre-indications 
+lineInArray = correctLine(listAffirmations, line, lineInArray)
+
+-- Pose des tags
+line_corrige = tableToString(lineInArray)
+line_corrige = line_corrige:gsub("’", "'")
+line_corrige = line_corrige:gsub("%p", " %0 ")
+local seq = dark.sequence(line_corrige)
+P(seq)
+if(havetag(seq, "#listeAffirmations")) then
+	questCompris = true;
+	io.write("\nS: OK je recherche des informations et je reviens vers vous ! \n \n")
+else
+	 io.write("\nS: J'espère avoir pu vous aider! A bientot \n \n") 
 end
 
 
@@ -456,7 +502,5 @@ while true do
 	-- TODO print réponse
 
 	-- Print DB
-	print(serialize(db))
+	--print(serialize(db))
 end
-
-
